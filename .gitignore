@@ -1,0 +1,28 @@
+# Temporary Session & Log files
+storage/sessions/*
+!storage/sessions/.gitkeep
+storage/logs/*.log
+!storage/logs/.gitkeep
+storage/backups/*.sql
+storage/backups/*.sqlite
+!storage/backups/.gitkeep
+storage/prescriptions/*
+!storage/prescriptions/.gitkeep
+!storage/prescriptions/sample_rx.jpg
+
+# SQLite WAL and lock temporary files
+*.sqlite-wal
+*.sqlite-shm
+
+# Windows and OS artifacts
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# Editor artifacts
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace

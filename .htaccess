@@ -1,0 +1,32 @@
+# Top-Level Security & Routing Configuration
+# 20-Year Architecture Standard: Hide sensitive folders and forward to frontend
+
+Options -Indexes
+ServerSignature Off
+
+# 1. Deny direct access to sensitive directories
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Block direct browser access to env, backend/config, backend/core, backend/models
+    RewriteRule ^(env|backend/config|backend/core|backend/models)/ - [F,L]
+    
+    # Block direct access to hidden files (.env, .git, etc.)
+    RewriteRule (^|/)\.(?!well-known) - [F,L]
+
+    # Block direct execution of any script inside storage/
+    RewriteRule ^storage/.*\.php$ - [F,L]
+
+    # Route /admin or /admin/ to admin login
+    RewriteRule ^admin/?$ backend/admin/login.php [R=302,L]
+    RewriteRule ^admin/(.*)$ backend/admin/$1 [L]
+
+    # Route root request to frontend
+    RewriteRule ^$ frontend/index.php [L]
+</IfModule>
+
+# 2. Prevent browsing of sensitive file extensions
+<FilesMatch "(^\.env|\.sql|\.log|\.sqlite)$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>

@@ -1,0 +1,118 @@
+<?php
+declare(strict_types=1);
+
+/**
+ * Global Application Configuration & Helper Functions
+ * 20-Year Architecture Standard: Secure, strict typing, clean paths
+ */
+
+// ── Production Security: Suppress error output to end users ──
+ini_set('display_errors', '0');
+ini_set('display_startup_errors', '0');
+error_reporting(E_ALL);                     // Log all, but show nothing
+ini_set('log_errors', '1');
+// Log to storage/logs/ — never to the webroot
+define('LOG_PATH', dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'logs');
+@mkdir(LOG_PATH, 0755, true);
+ini_set('error_log', LOG_PATH . DIRECTORY_SEPARATOR . 'php_errors.log');
+
+// Remove PHP version fingerprint from HTTP headers
+header_remove('X-Powered-By');
+
+// Define Root Paths
+define('APP_ROOT', dirname(__DIR__, 2));
+define('BACKEND_PATH', APP_ROOT . DIRECTORY_SEPARATOR . 'backend');
+define('FRONTEND_PATH', APP_ROOT . DIRECTORY_SEPARATOR . 'frontend');
+define('STORAGE_PATH', APP_ROOT . DIRECTORY_SEPARATOR . 'storage');
+define('ENV_PATH', APP_ROOT . DIRECTORY_SEPARATOR . 'env');
+
+// Configure safe persistent session path on Drive E:
+$sessionPath = STORAGE_PATH . DIRECTORY_SEPARATOR . 'sessions';
+if (!is_dir($sessionPath)) {
+    @mkdir($sessionPath, 0777, true);
+}
+if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+    if (is_writable($sessionPath)) {
+        session_save_path($sessionPath);
+    }
+}
+
+// Admin session timeout: 2 hours of inactivity
+define('ADMIN_SESSION_TIMEOUT', 7200);
+
+// Start Secure Session if not already active and headers not yet sent
+if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+    $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || (isset($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443)
+        || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https');
+
+    ini_set('session.use_only_cookies', '1');
+    ini_set('session.use_strict_mode', '1');
+
+    session_set_cookie_params([
+        'lifetime' => 0,       // Session cookie: expires when browser closes (admin security)
+        'path'     => '/',
+        'secure'   => $isSecure,
+        'httponly' => true,
+        'samesite' => 'Strict' // High-grade CSRF isolation
+    ]);
+    session_start();
+}
+
+// Autoload Core Classes
+spl_autoload_register(function ($class) {
+    $prefix = 'App\\';
+    $baseDir = BACKEND_PATH . DIRECTORY_SEPARATOR;
+
+    $len = strlen($prefix);
+    if (strncmp($prefix, $class, $len) !== 0) {
+        return;
+    }
+
+    $relativeClass = substr($class, $len);
+    $file = $baseDir . str_replace('\\', DIRECTORY_SEPARATOR, strtolower($relativeClass)) . '.php';
+
+    // Check with direct case as well
+    if (!file_exists($file)) {
+        $file = $baseDir . str_replace('\\', DIRECTORY_SEPARATOR, $relativeClass) . '.php';
+    }
+
+    if (file_exists($file)) {
+        require_once $file;
+    }
+});
+
+// Helper for dynamic Base URL resolution
+function app_url(string $path = ''): string {
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost:8000';
+    
+    // Calculate web root relative to script execution
+    $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+    $dirName = str_replace('\\', '/', dirname($scriptName));
+    
+    // Strip trailing admin, backend, core, or frontend if present
+    $baseDir = preg_replace('#/(backend/(admin|core|config)|frontend(/.*)?|admin(/.*)?)$#i', '', $dirName);
+    $baseDir = trim($baseDir, '/.');
+
+    $cleanPath = ltrim($path, '/');
+    $url = $protocol . $host;
+    if ($baseDir !== '') {
+        $url .= '/' . $baseDir;
+    }
+    if ($cleanPath !== '') {
+        $url .= '/' . $cleanPath;
+    }
+    return $url;
+}
+
+// Price formatter helper
+function format_price(float|int|string $amount): string {
+    return '₹' . number_format((float)$amount, 2);
+}
+
+// Date formatter helper
+function format_date(string $date, string $format = 'd M Y, h:i A'): string {
+    $timestamp = strtotime($date);
+    return $timestamp ? date($format, $timestamp) : 'N/A';
+}

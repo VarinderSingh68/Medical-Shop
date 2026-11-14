@@ -1,0 +1,7 @@
+# Protect Internal Backend Core & Models from Direct Browser Execution
+<FilesMatch "\.(php)$">
+    # Only allow files in admin/ to be accessed directly by authenticated administrators
+</FilesMatch>
+
+# Disallow direct listing
+Options -Indexes

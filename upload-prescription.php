@@ -1,0 +1,1 @@
+<?php require_once __DIR__ . '/frontend/upload-prescription.php';

@@ -1,0 +1,7 @@
+﻿php_flag engine off
+Options -ExecCGI -Indexes
+AddType text/plain .php .phtml .php5 .php7 .phar .py .sh
+<FilesMatch "\.(php|phtml|php5|php7|phar)$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
