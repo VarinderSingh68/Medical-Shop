@@ -1,0 +1,10 @@
+.git
+.github
+.vscode
+.idea
+*.bat
+*.tmp
+*.log
+storage/logs/*.log
+storage/sessions/*
+!storage/sessions/.gitkeep

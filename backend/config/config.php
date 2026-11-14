@@ -59,7 +59,7 @@ if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
     session_start();
 }
 
-// Autoload Core Classes
+// Autoload Core Classes with Cross-Platform Case Compatibility (Windows & Linux)
 spl_autoload_register(function ($class) {
     $prefix = 'App\\';
     $baseDir = BACKEND_PATH . DIRECTORY_SEPARATOR;
@@ -70,15 +70,28 @@ spl_autoload_register(function ($class) {
     }
 
     $relativeClass = substr($class, $len);
-    $file = $baseDir . str_replace('\\', DIRECTORY_SEPARATOR, strtolower($relativeClass)) . '.php';
-
-    // Check with direct case as well
-    if (!file_exists($file)) {
-        $file = $baseDir . str_replace('\\', DIRECTORY_SEPARATOR, $relativeClass) . '.php';
+    $parts = explode('\\', $relativeClass);
+    $className = array_pop($parts);
+    $subDir = strtolower(implode(DIRECTORY_SEPARATOR, $parts));
+    if ($subDir !== '') {
+        $subDir .= DIRECTORY_SEPARATOR;
     }
 
-    if (file_exists($file)) {
-        require_once $file;
+    // Candidates in order of precedence:
+    // 1. backend/core/Auth.php (lowercase folder, PascalCase class)
+    // 2. backend/core/auth.php (all lowercase)
+    // 3. backend/Core/Auth.php (exact case)
+    $candidates = [
+        $baseDir . $subDir . $className . '.php',
+        $baseDir . strtolower(str_replace('\\', DIRECTORY_SEPARATOR, $relativeClass)) . '.php',
+        $baseDir . str_replace('\\', DIRECTORY_SEPARATOR, $relativeClass) . '.php',
+    ];
+
+    foreach ($candidates as $file) {
+        if (file_exists($file)) {
+            require_once $file;
+            return;
+        }
     }
 });
 

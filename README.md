@@ -225,6 +225,33 @@ php -S 127.0.0.1:8000 router.php
 
 ---
 
+## 🐳 Cloud & Docker Deployment (Free via GitHub)
+
+HomeMed includes a production-ready `Dockerfile` with Apache 2.4 + PHP 8.3 + SQLite3 and dynamic `$PORT` handling. You can deploy it for free directly from GitHub:
+
+### Option A: 1-Click Deploy on Koyeb (Recommended — 100% Free)
+1. Sign up free at [Koyeb](https://www.koyeb.com) (Log in with GitHub).
+2. Click **Create App** ➔ Select **GitHub**.
+3. Choose repository: `VarinderSingh68/Medical-Shop`.
+4. Koyeb automatically detects `Dockerfile`.
+5. Select the **Nano** free tier instance (512MB RAM, always free).
+6. Click **Deploy**. Your live pharmacy platform will be available on a global HTTPS URL in under 2 minutes!
+
+### Option B: Deploy on Fly.io
+```bash
+fly launch
+fly deploy
+```
+
+### Option C: Run with Docker Locally
+```bash
+docker build -t homemed-pharmacy .
+docker run -p 8080:80 homemed-pharmacy
+```
+Then visit `http://localhost:8080`.
+
+---
+
 ## 🧪 Testing Email Dispatchers
 Navigate to **Admin ➔ Developer & System ➔ Mailer & SMTP Test** (`backend/admin/smtp-test.php`):
 - Click **"Test Setup 1: 2FA Login OTP Email"** to verify high-priority security code delivery.

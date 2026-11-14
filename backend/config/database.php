@@ -30,25 +30,32 @@ class DatabaseConnection {
                 }
             }
 
-            $host = $env['DB_HOST'] ?? '127.0.0.1';
-            $port = $env['DB_PORT'] ?? '3306';
-            $db   = $env['DB_NAME'] ?? 'medicin_shop';
-            $user = $env['DB_USER'] ?? 'root';
-            $pass = $env['DB_PASS'] ?? '';
+            $dbConn = getenv('DB_CONNECTION') ?: ($env['DB_CONNECTION'] ?? '');
+            $host = getenv('DB_HOST') ?: ($env['DB_HOST'] ?? '127.0.0.1');
+            $port = getenv('DB_PORT') ?: ($env['DB_PORT'] ?? '3306');
+            $db   = getenv('DB_NAME') ?: ($env['DB_NAME'] ?? 'medicin_shop');
+            $user = getenv('DB_USER') ?: ($env['DB_USER'] ?? 'root');
+            $pass = getenv('DB_PASS') ?: ($env['DB_PASS'] ?? '');
 
-            // 1. Attempt MySQL Connection
-            try {
-                $dsn = "mysql:host={$host};port={$port};dbname={$db};charset=utf8mb4";
-                $options = [
-                    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                    PDO::ATTR_EMULATE_PREPARES   => false,
-                    PDO::ATTR_TIMEOUT            => 3,
-                ];
-                self::$instance = new PDO($dsn, $user, $pass, $options);
-                self::$driver = 'mysql';
-            } catch (PDOException $e) {
-                // If MySQL is not running or database is not created, fall back to SQLite for instant local functionality
+            // 1. Attempt MySQL Connection (unless explicitly set to SQLite)
+            if ($dbConn !== 'sqlite') {
+                try {
+                    $dsn = "mysql:host={$host};port={$port};dbname={$db};charset=utf8mb4";
+                    $options = [
+                        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                        PDO::ATTR_EMULATE_PREPARES   => false,
+                        PDO::ATTR_TIMEOUT            => 3,
+                    ];
+                    self::$instance = new PDO($dsn, $user, $pass, $options);
+                    self::$driver = 'mysql';
+                } catch (PDOException $e) {
+                    // Fall back to SQLite below
+                }
+            }
+
+            // 2. Fall back to SQLite if MySQL is offline or not configured
+            if (self::$instance === null) {
                 $sqliteDir = __DIR__ . '/../../database/';
                 if (!is_dir($sqliteDir)) {
                     mkdir($sqliteDir, 0755, true);

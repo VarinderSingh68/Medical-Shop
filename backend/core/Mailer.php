@@ -34,12 +34,12 @@ class Mailer {
         }
 
         self::$config = [
-            'host'       => $env['SMTP_HOST'] ?? 'smtp.gmail.com',
-            'port'       => (int)($env['SMTP_PORT'] ?? 587),
-            'user'       => $env['SMTP_USER'] ?? 'ngw.designer@gmail.com',
-            'pass'       => str_replace(' ', '', $env['SMTP_PASS'] ?? 'xvqehegcyscusszt'),
-            'from_name'  => $env['SMTP_FROM_NAME'] ?? 'HomeMed Pharmacy Security',
-            'recipient'  => $env['OTP_RECIPIENT_EMAIL'] ?? 'ngw.designer@gmail.com',
+            'host'       => getenv('SMTP_HOST') ?: ($env['SMTP_HOST'] ?? 'smtp.gmail.com'),
+            'port'       => (int)(getenv('SMTP_PORT') ?: ($env['SMTP_PORT'] ?? 587)),
+            'user'       => getenv('SMTP_USER') ?: ($env['SMTP_USER'] ?? 'ngw.designer@gmail.com'),
+            'pass'       => str_replace(' ', '', getenv('SMTP_PASS') ?: ($env['SMTP_PASS'] ?? 'xvqehegcyscusszt')),
+            'from_name'  => getenv('SMTP_FROM_NAME') ?: ($env['SMTP_FROM_NAME'] ?? 'HomeMed Pharmacy Security'),
+            'recipient'  => getenv('OTP_RECIPIENT_EMAIL') ?: ($env['OTP_RECIPIENT_EMAIL'] ?? 'ngw.designer@gmail.com'),
         ];
 
         return self::$config;
