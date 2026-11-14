@@ -35,6 +35,13 @@ class GoogleAuth {
         // Check website_settings in database (persisted configuration)
         $dbSettings = [];
         try {
+            if (!class_exists('DatabaseConnection')) {
+                $dbFile = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'database.php';
+                if (file_exists($dbFile)) {
+                    require_once $dbFile;
+                }
+            }
+
             if (class_exists('DatabaseConnection')) {
                 $db = \DatabaseConnection::getInstance();
                 $stmt = $db->query("SELECT setting_key, setting_value FROM website_settings WHERE setting_key IN ('google_client_id', 'google_client_secret', 'google_redirect_uri')");
