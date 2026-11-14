@@ -32,7 +32,27 @@ class GoogleAuth {
             }
         }
 
-        $configuredRedirect = getenv('GOOGLE_REDIRECT_URI') ?: ($env['GOOGLE_REDIRECT_URI'] ?? '');
+        // Check website_settings in database (persisted configuration)
+        $dbSettings = [];
+        try {
+            if (class_exists('DatabaseConnection')) {
+                $db = \DatabaseConnection::getInstance();
+                $stmt = $db->query("SELECT setting_key, setting_value FROM website_settings WHERE setting_key IN ('google_client_id', 'google_client_secret', 'google_redirect_uri')");
+                if ($stmt) {
+                    $dbSettings = $stmt->fetchAll(\PDO::FETCH_KEY_PAIR) ?: [];
+                }
+            }
+        } catch (\Throwable $e) {
+            // Safe fallback
+        }
+
+        $clientId = getenv('GOOGLE_CLIENT_ID') 
+            ?: (!empty($dbSettings['google_client_id']) ? $dbSettings['google_client_id'] : ($env['GOOGLE_CLIENT_ID'] ?? ''));
+        $clientSecret = getenv('GOOGLE_CLIENT_SECRET') 
+            ?: (!empty($dbSettings['google_client_secret']) ? $dbSettings['google_client_secret'] : ($env['GOOGLE_CLIENT_SECRET'] ?? ''));
+        $configuredRedirect = getenv('GOOGLE_REDIRECT_URI') 
+            ?: (!empty($dbSettings['google_redirect_uri']) ? $dbSettings['google_redirect_uri'] : ($env['GOOGLE_REDIRECT_URI'] ?? ''));
+
         $currentAppRedirect = app_url('auth/google-callback.php');
         $host = $_SERVER['HTTP_HOST'] ?? '';
 
@@ -43,8 +63,8 @@ class GoogleAuth {
         }
 
         self::$config = [
-            'client_id'     => getenv('GOOGLE_CLIENT_ID') ?: ($env['GOOGLE_CLIENT_ID'] ?? ''),
-            'client_secret' => getenv('GOOGLE_CLIENT_SECRET') ?: ($env['GOOGLE_CLIENT_SECRET'] ?? ''),
+            'client_id'     => trim($clientId),
+            'client_secret' => trim($clientSecret),
             'redirect_uri'  => $redirectUri,
         ];
 

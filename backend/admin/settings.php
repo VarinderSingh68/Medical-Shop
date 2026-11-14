@@ -27,6 +27,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'delivery_fee'        => Security::sanitizeFloat($_POST['delivery_fee'] ?? 40.0),
             'free_delivery_above' => Security::sanitizeFloat($_POST['free_delivery_above'] ?? 500.0),
             'notice_ticker'       => Security::sanitizeString($_POST['notice_ticker'] ?? ''),
+            'google_client_id'     => trim($_POST['google_client_id'] ?? ''),
+            'google_client_secret' => trim($_POST['google_client_secret'] ?? ''),
+            'google_redirect_uri'  => trim($_POST['google_redirect_uri'] ?? ''),
         ];
 
         $settingModel->updateBulk($data);
@@ -116,6 +119,26 @@ $settings = $settingModel->getAll();
         <div class="form-group">
             <label>Top Banner Notice (Displayed across customer site)</label>
             <textarea name="notice_ticker" class="form-control" rows="2"><?= Security::e($settings['notice_ticker'] ?? 'Free Emergency Home Delivery for Senior Citizens & Chronic Care Patients! Upload prescription for fast verification.'); ?></textarea>
+        </div>
+
+        <h4 style="color:var(--primary); margin:24px 0 16px; border-bottom:1px solid var(--border); padding-bottom:8px;">
+            <i class="fa-brands fa-google"></i> Google OAuth 2.0 Customer Sign-In
+        </h4>
+
+        <div class="form-grid">
+            <div class="form-group" style="grid-column: 1 / -1;">
+                <label>Google OAuth Client ID</label>
+                <input type="text" name="google_client_id" class="form-control" value="<?= Security::e($settings['google_client_id'] ?? ''); ?>" placeholder="e.g. 1003359995625-...apps.googleusercontent.com">
+                <span style="font-size:0.75rem; color:var(--text-muted);">From Google Cloud Console ➔ APIs & Services ➔ Credentials</span>
+            </div>
+            <div class="form-group">
+                <label>Google OAuth Client Secret</label>
+                <input type="password" name="google_client_secret" class="form-control" value="<?= Security::e($settings['google_client_secret'] ?? ''); ?>" placeholder="GOCSPX-...">
+            </div>
+            <div class="form-group">
+                <label>Google Redirect URI</label>
+                <input type="text" name="google_redirect_uri" class="form-control" value="<?= Security::e($settings['google_redirect_uri'] ?? app_url('auth/google-callback.php')); ?>">
+            </div>
         </div>
 
         <button type="submit" class="btn btn-primary" style="padding:14px 28px; font-size:1rem;">
