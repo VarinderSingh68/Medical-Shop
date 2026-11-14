@@ -128,7 +128,9 @@ class Customer {
             // Update latest name & avatar if changed
             $stmt = $this->db->prepare("
                 UPDATE customers 
-                SET name = :name, avatar = COALESCE(:avatar, avatar), updated_at = CURRENT_TIMESTAMP 
+                SET name = :name, 
+                    avatar = CASE WHEN :avatar IS NOT NULL AND :avatar != '' THEN :avatar ELSE avatar END, 
+                    updated_at = CURRENT_TIMESTAMP 
                 WHERE id = :id
             ");
             $stmt->execute([':name' => $name, ':avatar' => $avatar, ':id' => $user['id']]);
@@ -142,7 +144,9 @@ class Customer {
         if ($user) {
             $stmt = $this->db->prepare("
                 UPDATE customers 
-                SET google_id = :google_id, avatar = COALESCE(:avatar, avatar), updated_at = CURRENT_TIMESTAMP 
+                SET google_id = :google_id, 
+                    avatar = CASE WHEN :avatar IS NOT NULL AND :avatar != '' THEN :avatar ELSE avatar END, 
+                    updated_at = CURRENT_TIMESTAMP 
                 WHERE id = :id
             ");
             $stmt->execute([':google_id' => $googleId, ':avatar' => $avatar, ':id' => $user['id']]);

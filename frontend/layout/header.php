@@ -93,12 +93,22 @@ $currentCity = $_SESSION['delivery_city'] ?? 'Mumbai, India';
                     <?php if (!empty($_SESSION['customer_id'])): ?>
                         <?php 
                         $custFirstName = htmlspecialchars(explode(' ', trim($_SESSION['customer_name'] ?? 'User'))[0]);
+                        if (empty($_SESSION['customer_avatar']) && !empty($_SESSION['customer_id'])) {
+                            try {
+                                $avatarStmt = $db->prepare("SELECT avatar FROM customers WHERE id = :id LIMIT 1");
+                                $avatarStmt->execute([':id' => (int)$_SESSION['customer_id']]);
+                                $avRow = $avatarStmt->fetch(PDO::FETCH_ASSOC);
+                                if (!empty($avRow['avatar'])) {
+                                    $_SESSION['customer_avatar'] = $avRow['avatar'];
+                                }
+                            } catch (\Throwable $e) {}
+                        }
                         $custAvatar = $_SESSION['customer_avatar'] ?? null;
                         ?>
                         <div class="nav-user-wrapper" id="nav-user-dropdown-container">
                             <a href="<?= app_url('account.php'); ?>" class="btn-signin-nav" style="background:#f0fdf4; color:#166534; border:1px solid #bbf7d0;">
                                 <?php if ($custAvatar): ?>
-                                    <img src="<?= Security::e($custAvatar); ?>" alt="Avatar" style="width:20px; height:20px; border-radius:50%; object-fit:cover;">
+                                    <img src="<?= Security::e($custAvatar); ?>" alt="Avatar" style="width:24px; height:24px; border-radius:50%; object-fit:cover;" referrerpolicy="no-referrer">
                                 <?php else: ?>
                                     <i class="fa-solid fa-circle-user" style="color:#16a34a; font-size:1.1rem;"></i>
                                 <?php endif; ?>

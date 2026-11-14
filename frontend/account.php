@@ -86,7 +86,7 @@ require_once __DIR__ . '/layout/header.php';
     <div style="background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%); color: #ffffff; border-radius: 20px; padding: 2rem 2.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem; box-shadow: 0 10px 25px rgba(13,148,136,0.25); margin-bottom: 2rem;">
         <div style="display: flex; align-items: center; gap: 1.25rem;">
             <?php if (!empty($customer['avatar'])): ?>
-                <img src="<?= Security::e($customer['avatar']); ?>" alt="Profile Avatar" style="width: 72px; height: 72px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.85); object-fit: cover;">
+                <img src="<?= Security::e($customer['avatar']); ?>" alt="Profile Avatar" style="width: 72px; height: 72px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.85); object-fit: cover;" referrerpolicy="no-referrer">
             <?php else: ?>
                 <div style="width: 72px; height: 72px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 2rem; border: 3px solid rgba(255,255,255,0.4);">
                     <i class="fa-solid fa-user"></i>

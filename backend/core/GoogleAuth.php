@@ -196,13 +196,25 @@ class GoogleAuth {
             return ['success' => false, 'error' => 'Could not retrieve email address from your Google Account.'];
         }
 
+        // Extract Google profile picture from UserInfo or fallback to ID token JWT payload
+        $avatar = $userData['picture'] ?? null;
+        if (empty($avatar) && !empty($tokenData['id_token'])) {
+            $jwtParts = explode('.', $tokenData['id_token']);
+            if (count($jwtParts) >= 2) {
+                $jwtPayload = json_decode(base64_decode(strtr($jwtParts[1], '-_', '+/')), true);
+                if (!empty($jwtPayload['picture'])) {
+                    $avatar = $jwtPayload['picture'];
+                }
+            }
+        }
+
         return [
             'success' => true,
             'user'    => [
                 'google_id' => $userData['sub'] ?? '',
                 'email'     => $userData['email'] ?? '',
                 'name'      => $userData['name'] ?? ($userData['given_name'] ?? 'Google User'),
-                'avatar'    => $userData['picture'] ?? null,
+                'avatar'    => $avatar,
             ],
         ];
     }

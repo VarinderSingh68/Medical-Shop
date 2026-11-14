@@ -14,8 +14,8 @@ class Security {
             header("X-Content-Type-Options: nosniff");
             header("Referrer-Policy: strict-origin-when-cross-origin");
             
-            // Content Security Policy — restricts script/style/font sources and forbids object/flash/plugins
-            header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self';");
+            // Content Security Policy — restricts script/style/font sources and allows trusted Google avatars
+            header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https://*.googleusercontent.com https://lh3.googleusercontent.com https://images.unsplash.com https://*.gravatar.com; connect-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self';");
             
             // Permissions Policy — disable unnecessary browser features
             header("Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()");
