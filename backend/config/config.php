@@ -54,7 +54,7 @@ if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
         'path'     => '/',
         'secure'   => $isSecure,
         'httponly' => true,
-        'samesite' => 'Strict' // High-grade CSRF isolation
+        'samesite' => 'Lax'    // Lax allows external OAuth redirects (Google/identity providers) while isolating CSRF
     ]);
     session_start();
 }

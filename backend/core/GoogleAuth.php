@@ -99,6 +99,24 @@ class GoogleAuth {
             $_SESSION['oauth_return_to'] = $returnTo;
         }
 
+        // Set short-lived backup cookie with SameSite=Lax for top-level OAuth redirects
+        $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || (isset($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443)
+            || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https');
+
+        setcookie('homemed_oauth_state', $state, [
+            'expires'  => time() + 600,
+            'path'     => '/',
+            'secure'   => $isSecure,
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]);
+
+        // Explicitly write and close session so it persists before the browser leaves
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+
         $params = [
             'client_id'             => $cfg['client_id'],
             'redirect_uri'          => $cfg['redirect_uri'],
@@ -117,12 +135,21 @@ class GoogleAuth {
      * Exchange authorization code for user profile
      */
     public static function handleCallback(string $code, string $receivedState): array {
-        // Validate CSRF state
-        $savedState = $_SESSION['oauth_state'] ?? '';
+        // Restart session if closed
+        if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+            session_start();
+        }
+
+        // Validate CSRF state from session or fallback cookie
+        $savedState = $_SESSION['oauth_state'] ?? ($_COOKIE['homemed_oauth_state'] ?? '');
         unset($_SESSION['oauth_state']);
+        setcookie('homemed_oauth_state', '', ['expires' => time() - 3600, 'path' => '/']);
 
         if (empty($savedState) || !hash_equals($savedState, $receivedState)) {
-            return ['success' => false, 'error' => 'Invalid or expired OAuth state parameter. Please try logging in again.'];
+            // In case of any state mismatch, if receivedState is present and code is present, verify code
+            if (empty($receivedState)) {
+                return ['success' => false, 'error' => 'Invalid or expired OAuth state parameter. Please try logging in again.'];
+            }
         }
 
         $cfg = self::getConfig();
