@@ -32,12 +32,20 @@ class GoogleAuth {
             }
         }
 
-        $defaultRedirect = app_url('auth/google-callback.php');
+        $configuredRedirect = getenv('GOOGLE_REDIRECT_URI') ?: ($env['GOOGLE_REDIRECT_URI'] ?? '');
+        $currentAppRedirect = app_url('auth/google-callback.php');
+        $host = $_SERVER['HTTP_HOST'] ?? '';
+
+        if (str_contains($host, 'localhost') || str_contains($host, '127.0.0.1')) {
+            $redirectUri = $currentAppRedirect;
+        } else {
+            $redirectUri = !empty($configuredRedirect) ? $configuredRedirect : $currentAppRedirect;
+        }
 
         self::$config = [
             'client_id'     => getenv('GOOGLE_CLIENT_ID') ?: ($env['GOOGLE_CLIENT_ID'] ?? ''),
             'client_secret' => getenv('GOOGLE_CLIENT_SECRET') ?: ($env['GOOGLE_CLIENT_SECRET'] ?? ''),
-            'redirect_uri'  => getenv('GOOGLE_REDIRECT_URI') ?: ($env['GOOGLE_REDIRECT_URI'] ?? $defaultRedirect),
+            'redirect_uri'  => $redirectUri,
         ];
 
         return self::$config;

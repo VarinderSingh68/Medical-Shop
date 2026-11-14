@@ -113,8 +113,8 @@ function app_url(string $path = ''): string {
     
     $dirName = str_replace('\\', '/', dirname($scriptName));
     
-    // Strip trailing admin, backend, core, or frontend if present
-    $baseDir = preg_replace('#/(backend/(admin|core|config)|frontend(/.*)?|admin(/.*)?)$#i', '', $dirName);
+    // Strip trailing admin, backend, core, frontend, auth, or api subdirectories if present
+    $baseDir = preg_replace('#/(backend(/.*)?|frontend(/.*)?|admin(/.*)?|auth(/.*)?|api(/.*)?)$#i', '', $dirName);
     $baseDir = trim($baseDir, '/.');
 
     $cleanPath = ltrim($path, '/');
