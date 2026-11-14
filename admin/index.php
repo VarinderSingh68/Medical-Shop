@@ -17,7 +17,11 @@ if (!empty($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === tru
     if (session_status() === PHP_SESSION_ACTIVE) {
         session_write_close();
     }
-    header("Location: " . app_url('backend/admin/index.php'));
+    $target = app_url('backend/admin/index.php');
+    if (str_contains($target, '/home/')) {
+        $target = '/backend/admin/index.php';
+    }
+    header("Location: " . $target);
     exit;
 }
 
@@ -25,5 +29,9 @@ if (!empty($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === tru
 if (session_status() === PHP_SESSION_ACTIVE) {
     session_write_close();
 }
-header("Location: " . app_url('backend/admin/login.php'));
+$target = app_url('backend/admin/login.php');
+if (str_contains($target, '/home/')) {
+    $target = '/backend/admin/login.php';
+}
+header("Location: " . $target);
 exit;

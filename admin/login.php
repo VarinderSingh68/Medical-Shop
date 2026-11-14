@@ -7,5 +7,9 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../backend/config/config.php';
 
-header("Location: " . app_url('backend/admin/login.php'));
+$target = app_url('backend/admin/login.php');
+if (str_contains($target, '/home/')) {
+    $target = '/backend/admin/login.php';
+}
+header("Location: " . $target);
 exit;

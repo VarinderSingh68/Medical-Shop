@@ -97,11 +97,20 @@ spl_autoload_register(function ($class) {
 
 // Helper for dynamic Base URL resolution
 function app_url(string $path = ''): string {
-    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || (isset($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443)
+        || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https')
+        ? "https://" : "http://";
+
     $host = $_SERVER['HTTP_HOST'] ?? 'localhost:8000';
     
-    // Calculate web root relative to script execution
-    $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+    // Normalize script name and remove physical document root if present in SCRIPT_NAME (e.g. FastCGI)
+    $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
+    $docRoot = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? '');
+    if ($docRoot !== '' && str_starts_with($scriptName, $docRoot)) {
+        $scriptName = substr($scriptName, strlen($docRoot));
+    }
+    
     $dirName = str_replace('\\', '/', dirname($scriptName));
     
     // Strip trailing admin, backend, core, or frontend if present
