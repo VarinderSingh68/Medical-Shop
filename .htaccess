@@ -18,7 +18,7 @@ ServerSignature Off
     RewriteRule ^storage/.*\.php$ - [F,L]
 
     # Route /admin or /admin/ to admin login
-    RewriteRule ^admin/?$ backend/admin/login.php [R=302,L]
+    RewriteRule ^admin/?$ /backend/admin/login.php [R=302,L]
     RewriteRule ^admin/(.*)$ backend/admin/$1 [L]
 
     # Route root request to frontend
