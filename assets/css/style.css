@@ -398,6 +398,50 @@ body {
     box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
 }
 
+/* User Account Dropdown in Navigation */
+.nav-user-wrapper {
+    position: relative;
+    display: inline-block;
+}
+.nav-user-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.06);
+    border: 1px solid #e2e8f0;
+    min-width: 230px;
+    padding: 8px;
+    display: none;
+    z-index: 1000;
+}
+.nav-user-wrapper:hover .nav-user-menu,
+.nav-user-wrapper.active .nav-user-menu {
+    display: block;
+}
+.nav-user-menu a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    color: #334155;
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.15s ease;
+}
+.nav-user-menu a:hover {
+    background: #f8fafc;
+    color: var(--brand-teal);
+}
+.nav-user-menu .menu-divider {
+    height: 1px;
+    background: #f1f5f9;
+    margin: 6px 0;
+}
+
 /* ==========================================================================
    2. HERO SECTION WITH STAGGERED ENTRANCE
    ========================================================================== */

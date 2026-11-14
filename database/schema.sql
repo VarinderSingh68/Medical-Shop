@@ -1,4 +1,4 @@
-﻿CREATE DATABASE IF NOT EXISTS `medicin_shop` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS `medicin_shop` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `medicin_shop`;
 
 CREATE TABLE IF NOT EXISTS `disease_categories` (
@@ -59,8 +59,25 @@ CREATE TABLE IF NOT EXISTS `admin_users` (
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
+CREATE TABLE IF NOT EXISTS `customers` (
+    `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `name` VARCHAR(120) NOT NULL,
+    `email` VARCHAR(150) NOT NULL UNIQUE,
+    `password` VARCHAR(255) NULL,
+    `phone` VARCHAR(30) NULL,
+    `address` TEXT NULL,
+    `city` VARCHAR(80) NULL,
+    `pincode` VARCHAR(20) NULL,
+    `google_id` VARCHAR(100) NULL UNIQUE,
+    `avatar` VARCHAR(255) NULL,
+    `status` ENUM('Active', 'Suspended') DEFAULT 'Active',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
 CREATE TABLE IF NOT EXISTS `orders` (
     `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `customer_id` INT UNSIGNED NULL,
     `order_code` VARCHAR(20) NOT NULL UNIQUE,
     `customer_name` VARCHAR(120) NOT NULL,
     `phone` VARCHAR(20) NOT NULL,
